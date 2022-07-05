@@ -6,7 +6,9 @@ members = [
     "plugin/input_text/*",
     "plugin/oov/*",
     "plugin/path_rewrite/*",
-    "python"
+    "python",
+    "timeperf-original",
+    "timeperf-packed",
 ]
 
 default-members = [
