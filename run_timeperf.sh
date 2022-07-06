@@ -12,3 +12,7 @@ popd
 pushd "./timeperf-packed"
 cargo run --release -- -d ../resources/system.dic -s ../wagahaiwa_nekodearu.txt -r ../resources
 popd
+
+pushd "./timeperf-packed2"
+cargo run --release -- -d ../resources/system.dic -s ../wagahaiwa_nekodearu.txt -r ../resources
+popd

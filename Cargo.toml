@@ -9,6 +9,7 @@ members = [
     "python",
     "timeperf-original",
     "timeperf-packed",
+    "timeperf-packed2",
 ]
 
 default-members = [

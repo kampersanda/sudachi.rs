@@ -935,6 +935,29 @@ dependencies = [
 [[package]]
 name = "sudachi"
 version = "0.6.6-a1"
+source = "git+https://github.com/kampersanda/sudachi.rs.git?branch=pack-lattice-nodes2#2f83a96e9051a79e349ba53be3bc6667defc06a8"
+dependencies = [
+ "aho-corasick",
+ "bitflags",
+ "csv",
+ "fancy-regex",
+ "indexmap",
+ "itertools",
+ "lazy_static",
+ "libloading",
+ "memmap2",
+ "nom",
+ "regex",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "unicode-normalization",
+ "yada",
+]
+
+[[package]]
+name = "sudachi"
+version = "0.6.6-a1"
 source = "git+https://github.com/WorksApplications/sudachi.rs.git?rev=f0bf811#f0bf811699d14ba30a03b43d0e61f2feb0f21070"
 dependencies = [
  "aho-corasick",
@@ -1082,6 +1105,14 @@ version = "0.1.0"
 dependencies = [
  "clap 3.2.8",
  "sudachi 0.6.6-a1 (git+https://github.com/kampersanda/sudachi.rs.git?branch=pack-lattice-nodes)",
+]
+
+[[package]]
+name = "timeperf-packed2"
+version = "0.1.0"
+dependencies = [
+ "clap 3.2.8",
+ "sudachi 0.6.6-a1 (git+https://github.com/kampersanda/sudachi.rs.git?branch=pack-lattice-nodes2)",
 ]
 
 [[package]]
