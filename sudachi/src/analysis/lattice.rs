@@ -61,6 +61,18 @@ impl VNode {
     }
 }
 
+struct PackedNode {
+    node: Node,
+    node_idx: NodeIdx,
+}
+
+impl PackedNode {
+    #[inline]
+    fn new(node: Node, node_idx: NodeIdx) -> Self {
+        Self { node, node_idx }
+    }
+}
+
 /// Lattice which is constructed for performing the Viterbi search.
 /// Contain several parallel arrays.
 /// First level of parallel arrays is indexed by end word boundary.
@@ -72,8 +84,7 @@ impl VNode {
 /// access vectors after the end.
 pub struct Lattice {
     ends: Vec<Vec<VNode>>,
-    ends_full: Vec<Vec<Node>>,
-    indices: Vec<Vec<NodeIdx>>,
+    ends_full: Vec<Vec<PackedNode>>,
     eos: Option<(NodeIdx, i32)>,
     size: usize,
 }
@@ -83,7 +94,6 @@ impl Default for Lattice {
         Lattice {
             ends: Vec::new(),
             ends_full: Vec::new(),
-            indices: Vec::new(),
             eos: None,
             size: 0,
         }
@@ -109,7 +119,6 @@ impl Lattice {
     pub fn reset(&mut self, length: usize) {
         Self::reset_vec(&mut self.ends, length + 1);
         Self::reset_vec(&mut self.ends_full, length + 1);
-        Self::reset_vec(&mut self.indices, length + 1);
         self.eos = None;
         self.size = length + 1;
         self.connect_bos();
@@ -140,8 +149,7 @@ impl Lattice {
         let (idx, cost) = self.connect_node(&node, conn);
         let end_idx = node.end();
         self.ends[end_idx].push(VNode::new(node.right_id(), cost));
-        self.indices[end_idx].push(idx);
-        self.ends_full[end_idx].push(node);
+        self.ends_full[end_idx].push(PackedNode::new(node, idx));
         cost
     }
 
@@ -178,7 +186,7 @@ impl Lattice {
 
     /// Lookup a node for the index
     pub fn node(&self, id: NodeIdx) -> (&Node, i32) {
-        let node = &self.ends_full[id.end() as usize][id.index() as usize];
+        let node = &self.ends_full[id.end() as usize][id.index() as usize].node;
         let cost = self.ends[id.end() as usize][id.index() as usize].total_cost;
         (node, cost)
     }
@@ -194,7 +202,7 @@ impl Lattice {
         let (mut idx, _) = self.eos.unwrap();
         result.push(idx);
         loop {
-            let prev_idx = self.indices[idx.end() as usize][idx.index() as usize];
+            let prev_idx = self.ends_full[idx.end() as usize][idx.index() as usize].node_idx;
             if prev_idx.end() != 0 {
                 // add if not BOS
                 result.push(prev_idx);
@@ -239,11 +247,11 @@ impl Lattice {
 
         let mut dump_idx = 0;
 
-        for boundary in (0..self.indices.len()).rev() {
+        for boundary in (0..self.ends_full.len()).rev() {
             let nodes = &self.ends_full[boundary];
 
             for node_idx in 0..nodes.len() {
-                let r_node = &nodes[node_idx];
+                let r_node = &nodes[node_idx].node;
                 let (surface, pos) = if r_node.is_special_node() {
                     ("(null)", PosData::Bos)
                 } else if r_node.is_oov() {
